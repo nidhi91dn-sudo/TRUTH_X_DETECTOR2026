@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Security Tools | Truth-X Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tool-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.tool-card:hover::before { opacity: 1; }
+.tool-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,217,255,0.1); }
+
+.tool-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: rgba(0,217,255,0.1);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.tool-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tool-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.result-box {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeUp 0.3s ease both;
+}
+
+.result-success {
+  background: rgba(34,217,138,0.08);
+  border: 1px solid rgba(34,217,138,0.3);
+  color: var(--green);
+}
+
+.result-warning {
+  background: rgba(245,197,24,0.08);
+  border: 1px solid rgba(245,197,24,0.3);
+  color: var(--yellow);
+}
+
+.result-danger {
+  background: rgba(255,75,110,0.08);
+  border: 1px solid rgba(255,75,110,0.3);
+  color: var(--red);
+}
+
+.report-card::before { background: linear-gradient(90deg, #6b8fff, #a7c6ff); }
+.report-card .tool-icon { background: rgba(107,143,255,0.1); border-color: rgba(107,143,255,0.3); }
+.report-btn {
+  background: linear-gradient(90deg, #6b8fff, #a7c6ff) !important;
+  box-shadow: 0 4px 16px rgba(107,143,255,0.3) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" href="/dashboard">🛡 TRUTH-X<span>-DETECTOR</span></a>
+  <div class="nav-menu">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/image_detector">Analyze Image</a>
+    <a href="/analyzer">Message Scan</a>
+    <a href="/tools" class="active">Tools</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" class="logout-btn">Logout</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div style="margin-bottom:28px;">
+    <h1 style="font-size:26px;font-weight:800;color:#fff;">🛠 Security Tools Suite</h1>
+    <p style="color:var(--muted);font-size:14px;margin-top:4px;">A collection of tools to verify and protect your digital safety</p>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- URL CHECKER -->
+    <div class="tool-card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="tool-icon">🔗</div>
+        <div>
+          <div class="tool-title">URL Safety Checker</div>
+          <div class="tool-desc">Detect phishing or unsafe links</div>
+        </div>
+      </div>
+      <form action="/check_url" method="post">
+        <div class="form-group" style="margin-bottom:10px;">
+          <input class="form-input" name="url" placeholder="https://example.com" required>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Analyze Link</button>
+      </form>
+      {% if url_result %}
+      <div class="result-box {% if '✅' in url_result %}result-success{% else %}result-warning{% endif %}">{{ url_result }}</div>
+      {% endif %}
+    </div>
+
+    <!-- EMAIL VALIDATOR -->
+    <div class="tool-card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="tool-icon">📧</div>
+        <div>
+          <div class="tool-title">Email Validator</div>
+          <div class="tool-desc">Verify email address format legitimacy</div>
+        </div>
+      </div>
+      <form action="/check_email" method="post">
+        <div class="form-group" style="margin-bottom:10px;">
+          <input class="form-input" name="email" type="email" placeholder="user@domain.com" required>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Validate Email</button>
+      </form>
+      {% if email_result %}
+      <div class="result-box {% if '✅' in email_result %}result-success{% else %}result-danger{% endif %}">{{ email_result }}</div>
+      {% endif %}
+    </div>
+
+    <!-- PHONE CHECKER -->
+    <div class="tool-card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="tool-icon">📱</div>
+        <div>
+          <div class="tool-title">Phone Number Checker</div>
+          <div class="tool-desc">Validate phone number format</div>
+        </div>
+      </div>
+      <form action="/check_phone" method="post">
+        <div class="form-group" style="margin-bottom:10px;">
+          <input class="form-input" name="phone" placeholder="e.g. 9876543210" required>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Verify Number</button>
+      </form>
+      {% if phone_result %}
+      <div class="result-box {% if '✅' in phone_result %}result-success{% else %}result-warning{% endif %}">{{ phone_result }}</div>
+      {% endif %}
+    </div>
+
+    <!-- PASSWORD STRENGTH -->
+    <div class="tool-card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="tool-icon">🔑</div>
+        <div>
+          <div class="tool-title">Password Strength</div>
+          <div class="tool-desc">Test your password's security level</div>
+        </div>
+      </div>
+      <form action="/check_password" method="post">
+        <div class="form-group" style="margin-bottom:10px;">
+          <input class="form-input" name="password" type="text" placeholder="Enter password to test" required>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Check Strength</button>
+      </form>
+      {% if pass_result %}
+      <div class="result-box {% if 'Strong' in pass_result %}result-success{% else %}result-danger{% endif %}">{{ pass_result }}</div>
+      {% endif %}
+    </div>
+
+    <!-- REPORT -->
+    <div class="tool-card report-card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="tool-icon">📄</div>
+        <div>
+          <div class="tool-title">Generate Security Report</div>
+          <div class="tool-desc">Download a full PDF report of your scan history and threats</div>
+        </div>
+      </div>
+      <form action="/generate_report" method="POST" style="margin-top:auto;">
+        <button class="btn btn-primary btn-full report-btn" type="submit">📥 Download PDF Report</button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel | Truth-X-Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:radial-gradient(circle at top,#0b1630,#040914);
+    color:white;
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 40px;
+    background:rgba(10,20,40,.9);
+    border-bottom:1px solid #00c3ff55;
+    box-shadow:0 0 20px #00c3ff55;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo{
+    font-size:26px;
+    font-weight:700;
+    color:#00d9ff;
+    letter-spacing:1px;
+}
+
+.menu a{
+    margin:0 18px;
+    text-decoration:none;
+    color:#ff4b4b;
+    font-weight:bold;
+    transition: 0.3s;
+}
+
+.menu a:hover{
+    color:#ff7b7b;
+    text-shadow: 0 0 10px #ff7b7b;
+}
+
+/* CONTAINER */
+.container {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-title {
+    margin-bottom: 30px;
+    font-size: 32px;
+    color: #cfefff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.page-title i {
+    color: #00d9ff;
+}
+
+/* TABLE */
+.table-container {
+    background: linear-gradient(145deg, #0c1d3c, #081126);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 195, 255, 0.1);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 195, 255, 0.1);
+}
+
+th {
+    background: rgba(0, 195, 255, 0.05);
+    color: #00d9ff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+td {
+    color: #cfefff;
+    font-size: 15px;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-on {
+    background: rgba(0, 255, 123, 0.1);
+    color: #00ff7b;
+    border: 1px solid #00ff7b;
+}
+
+.badge-off {
+    background: rgba(255, 75, 75, 0.1);
+    color: #ff4b4b;
+    border: 1px solid #ff4b4b;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="logo">🛡 ADMIN CONSOLE</div>
+    <div class="menu">
+        <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page-title">
+        <i class="fa-solid fa-users-gear"></i> Registered Users Directory
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email Address</th>
+                    <th>2FA Status</th>
+                    <th>Registration Date</th>
+                    <th>Last Login</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td style="color: #5a75a6;">#{{ user[0] }}</td>
+                    <td style="font-weight: bold; color: white;">{{ user[1] }}</td>
+                    <td>{{ user[2] }}</td>
+                    <td>
+                        <span class="badge {% if user[5] == 'on' %}badge-on{% else %}badge-off{% endif %}">
+                            {{ user[5] | upper }}
+                        </span>
+                    </td>
+                    <td>{{ user[3][:16] }}</td>
+                    <td>{{ user[4][:16] if user[4] else 'Never' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #5a75a6;">
+                        No users registered yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

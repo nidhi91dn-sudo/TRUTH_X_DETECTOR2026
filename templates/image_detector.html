@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Image Detector | Truth-X Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+.upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 50px 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  background: rgba(0,0,0,0.2);
+}
+
+.upload-area:hover {
+  border-color: var(--accent);
+  background: rgba(0,217,255,0.04);
+}
+
+.upload-label { cursor: pointer; }
+
+.upload-icon { font-size: 48px; margin-bottom: 12px; }
+
+.upload-text { color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+.upload-text strong { color: var(--accent); }
+
+input[type="file"] { display: none; }
+
+.scan-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  border-radius: 2px;
+  animation: scanLine 1.8s infinite;
+  margin-top: 16px;
+}
+
+.circle-score {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) calc(var(--score) * 1%), rgba(255,255,255,0.05) 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  position: relative;
+}
+
+.circle-score::before {
+  content: '';
+  position: absolute;
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: var(--bg-card);
+}
+
+.circle-score span { position: relative; z-index: 1; }
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.img-preview {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  margin: 0 auto;
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" href="/dashboard">🛡 TRUTH-X<span>-DETECTOR</span></a>
+  <div class="nav-menu">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/image_detector" class="active">Analyze Image</a>
+    <a href="/analyzer">Message Scan</a>
+    <a href="/tools">Tools</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" class="logout-btn">Logout</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-size:26px;font-weight:800;color:#fff;">🧠 AI Image Detector</h1>
+    <p style="color:var(--muted);font-size:14px;margin-top:4px;">Upload any image to check if it's AI-generated or manipulated</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+
+    <!-- LEFT -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> Upload Image</div>
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+          <label for="fileInput" class="upload-label">
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">🖼️</div>
+              <p style="font-size:16px;font-weight:600;color:#fff;">Drop image here or click to upload</p>
+              <div class="upload-text">Supports JPG, PNG, WEBP, GIF • Max 10MB</div>
+            </div>
+          </label>
+          <input type="file" name="image" id="fileInput" accept="image/*" required>
+          <img id="previewImg" class="img-preview" style="display:none;margin-top:16px;">
+          <button class="btn btn-primary btn-full" type="submit" style="margin-top:16px;font-size:15px;padding:13px;">
+            🔍 Scan Image
+          </button>
+        </form>
+      </div>
+
+      {% if image_path %}
+      <div class="glass-card anim-fadein">
+        <div class="section-title"><span class="dot"></span> Uploaded Image</div>
+        <img src="{{ image_path }}" class="img-preview">
+        <div class="scan-bar"></div>
+      </div>
+
+      <div class="glass-card anim-fadein">
+        <div class="section-title"><span class="dot"></span> Analysis Breakdown</div>
+
+        <div style="margin-bottom:16px;">
+          <div class="bar-label"><span>Metadata Integrity</span><strong>{{ meta }}%</strong></div>
+          <div class="prog-track"><div class="prog-fill" style="width:{{ meta }}%"></div></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div class="bar-label"><span>Noise Pattern Analysis</span><strong>{{ noise }}%</strong></div>
+          <div class="prog-track"><div class="prog-fill" style="width:{{ noise }}%"></div></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div class="bar-label"><span>Compression Signature</span><strong>{{ compression }}%</strong></div>
+          <div class="prog-track"><div class="prog-fill" style="width:{{ compression }}%"></div></div>
+        </div>
+
+        <div>
+          <div class="bar-label"><span>Overall Authenticity</span><strong>{{ score }}%</strong></div>
+          <div class="prog-track"><div class="prog-fill" style="width:{{ score }}%"></div></div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      {% if result %}
+      <div class="glass-card anim-fadein">
+        <div class="section-title"><span class="dot"></span> Authenticity Score</div>
+        <div class="circle-score" style="--score:{{ score }}"><span>{{ score }}%</span></div>
+
+        <div style="text-align:center;margin-top:20px;">
+          {% if score > 65 %}
+            <div class="result-safe">{{ result }}</div>
+          {% else %}
+            <div class="result-scam">{{ result }}</div>
+          {% endif %}
+        </div>
+
+        <div style="margin-top:20px;padding:16px;background:rgba(0,0,0,0.2);border-radius:12px;">
+          <div style="font-size:13px;color:var(--muted);">AI Generated Probability</div>
+          <div style="font-size:26px;font-weight:800;color:{% if ai_prob > 50 %}var(--red){% else %}var(--green){% endif %};">{{ ai_prob }}%</div>
+          <div class="prog-track" style="margin-top:8px;">
+            <div class="prog-fill" style="width:{{ ai_prob }}%;background:{% if ai_prob > 50 %}linear-gradient(90deg,#c0392b,#e74c3c){% else %}linear-gradient(90deg,#16a085,#22d98a){% endif %};"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;padding:14px;background:rgba(0,0,0,0.2);border-radius:10px;font-size:13px;color:var(--muted);line-height:1.6;">
+          🤖 {{ explanation }}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> How Detection Works</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--muted);">
+          <div>🔬 <strong style="color:#fff;">Metadata Analysis</strong> — checks EXIF data and file properties</div>
+          <div>🌊 <strong style="color:#fff;">Noise Patterns</strong> — looks for AI generation artifacts</div>
+          <div>🗜️ <strong style="color:#fff;">Compression</strong> — analyses compression signature inconsistencies</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const fileInput = document.getElementById("fileInput");
+const preview   = document.getElementById("previewImg");
+const uploadArea = document.getElementById("uploadArea");
+
+fileInput.onchange = e => {
+  const file = e.target.files[0];
+  if (file) {
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    uploadArea.style.borderColor = "var(--accent)";
+  }
+};
+</script>
+
+</body>
+</html>

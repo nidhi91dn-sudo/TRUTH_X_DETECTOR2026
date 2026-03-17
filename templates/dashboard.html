@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard | Truth-X Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+@media (max-width: 1100px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+.activity-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 15px;
+}
+
+.activity-row:last-child { border-bottom: none; }
+
+.activity-type { color: var(--muted); text-transform: capitalize; }
+
+.threat-meter {
+  height: 14px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 12px;
+  position: relative;
+}
+
+.threat-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
+  animation: threatAnim 3s infinite alternate ease-in-out;
+}
+
+@keyframes threatAnim {
+  from { width: 35%; }
+  to   { width: 72%; }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  margin-right: 8px;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50%      { opacity:.4; }
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.tip-item:last-child { border-bottom: none; }
+.tip-icon { font-size: 16px; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" href="/dashboard">🛡 TRUTH-X<span>-DETECTOR</span></a>
+  <div class="nav-menu">
+    <a href="/dashboard" class="active">Dashboard</a>
+    <a href="/image_detector">Analyze Image</a>
+    <a href="/analyzer">Message Scan</a>
+    <a href="/tools">Tools</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout" class="logout-btn">Logout</a>
+  </div>
+  <div class="nav-badge">⏱ Session <span id="timer">00:00</span></div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <div style="margin-bottom:28px;">
+    <h1 style="font-size:30px;font-weight:800;color:#fff;">Command Center</h1>
+    <p style="color:var(--muted);font-size:16px;margin-top:6px;">Real-time overview of your scan activity and threat status</p>
+  </div>
+
+  <!-- TOP STAT CARDS -->
+  <div class="cards-grid">
+
+    <div class="stat-card anim-fadein">
+      <div class="accent-bar" style="background:linear-gradient(90deg,#0072ff,#00d9ff);"></div>
+      <div class="label">📊 Total Scans</div>
+      <div class="value" style="color:var(--accent);">{{ total_scans }}</div>
+    </div>
+
+    <div class="stat-card anim-fadein">
+      <div class="accent-bar" style="background:linear-gradient(90deg,#c0392b,#e74c3c);"></div>
+      <div class="label">🚨 Scams Detected</div>
+      <div class="value" style="color:var(--red);">{{ scam_count }}</div>
+    </div>
+
+    <div class="stat-card anim-fadein">
+      <div class="accent-bar" style="background:linear-gradient(90deg,#16a085,#22d98a);"></div>
+      <div class="label">✅ Safe Messages</div>
+      <div class="value" style="color:var(--green);">{{ safe_count }}</div>
+    </div>
+
+    <div class="stat-card anim-fadein">
+      <div class="accent-bar" style="background:linear-gradient(90deg,#d4ac0d,#f5c518);"></div>
+      <div class="label">🤖 AI Accuracy</div>
+      <div class="value" style="color:var(--yellow);">{{ accuracy }}%</div>
+    </div>
+
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> Recent Detection Activity</div>
+        {% if recent %}
+          {% for item in recent %}
+          <div class="activity-row">
+            <span class="activity-type">{{ item[0] }}</span>
+            {% if 'SAFE' in item[1] or 'Real' in item[1] or 'Secure' in item[1] or 'Valid' in item[1] %}
+              <span class="badge badge-safe">{{ item[1] }}</span>
+            {% elif 'SCAM' in item[1] or 'Fake' in item[1] or 'Invalid' in item[1] %}
+              <span class="badge badge-scam">{{ item[1] }}</span>
+            {% else %}
+              <span class="badge badge-warn">{{ item[1] }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:var(--muted);font-size:14px;text-align:center;padding:24px 0;">No scan activity yet. Run your first scan!</p>
+        {% endif %}
+      </div>
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> Detection Trends (Last 5 Days)</div>
+        <canvas id="trendChart" height="80"></canvas>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> Threat Level</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px;color:var(--muted);">Current risk</span>
+          {% if threat == 'HIGH' %}
+            <span class="badge badge-scam">{{ threat }}</span>
+          {% elif threat == 'MEDIUM' %}
+            <span class="badge badge-warn">{{ threat }}</span>
+          {% else %}
+            <span class="badge badge-safe">{{ threat }}</span>
+          {% endif %}
+        </div>
+        <div class="threat-meter"><div class="threat-fill"></div></div>
+      </div>
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> AI System Status</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;">
+          <div><span class="status-dot"></span> AI Model: <strong style="color:var(--green);">{{ ai_status }}</strong></div>
+          <div><span class="status-dot"></span> Database: <strong style="color:var(--green);">Connected</strong></div>
+          <div><span class="status-dot"></span> Scanner: <strong style="color:var(--green);">Running</strong></div>
+          <div><span class="status-dot"></span> Security: <strong style="color:var(--green);">High</strong></div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="section-title"><span class="dot"></span> Quick Safety Tips</div>
+        <div class="tip-item"><span class="tip-icon">🔗</span> Avoid clicking on unknown links</div>
+        <div class="tip-item"><span class="tip-icon">🔑</span> Never share your OTP or passwords</div>
+        <div class="tip-item"><span class="tip-icon">⚠</span> Report suspicious messages</div>
+        <div class="tip-item"><span class="tip-icon">📧</span> Verify emails before trusting them</div>
+      </div>
+
+      <div style="display:flex;gap:12px;">
+        <a href="/analyzer" class="btn btn-primary btn-full" style="flex:1;padding:12px;border-radius:12px;text-decoration:none;text-align:center;justify-content:center;">Scan Message</a>
+        <a href="/image_detector" class="btn btn-outline btn-full" style="flex:1;padding:12px;border-radius:12px;text-decoration:none;text-align:center;justify-content:center;">Scan Image</a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// Session timer
+let sec = 0;
+setInterval(() => {
+  sec++;
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  document.getElementById("timer").textContent =
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}, 1000);
+
+// Chart
+const ctx = document.getElementById("trendChart");
+new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: {{ chart_labels | tojson | safe }},
+    datasets: [{
+      label: "Threats Detected",
+      data: {{ chart_data | tojson | safe }},
+      borderColor: '#00d9ff',
+      backgroundColor: 'rgba(0,217,255,0.08)',
+      pointBackgroundColor: '#00d9ff',
+      pointRadius: 5,
+      tension: 0.4,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: '#7a9ac0', font: { family: 'Inter' } } }
+    },
+    scales: {
+      x: { ticks: { color: '#7a9ac0' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+      y: { ticks: { color: '#7a9ac0' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

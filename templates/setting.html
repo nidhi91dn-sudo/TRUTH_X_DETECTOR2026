@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings | Truth-X Detector</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+.settings-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .settings-layout { grid-template-columns: 1fr; }
+}
+
+.profile-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 28px;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 auto 16px;
+  box-shadow: 0 0 20px rgba(0,217,255,0.3);
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.profile-email {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.nav-link {
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: 0.2s;
+  text-align: left;
+}
+
+.nav-link:hover { background: rgba(255,255,255,0.04); color: #fff; }
+
+.setting-block {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  gap: 20px;
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+.setting-info h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.setting-info p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.setting-control {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.form-select {
+  padding: 9px 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  min-width: 130px;
+  transition: 0.25s;
+}
+
+.form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,217,255,0.12);
+}
+
+.form-select option { background: #041629; }
+
+.form-input-sm {
+  padding: 9px 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  width: 160px;
+  transition: 0.25s;
+}
+
+.form-input-sm:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,217,255,0.12);
+}
+
+.btn-sm {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+  white-space: nowrap;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  color: #fff;
+}
+
+.btn-sm:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,217,255,0.3); }
+
+.btn-sm-danger {
+  background: linear-gradient(90deg, #c0392b, #e74c3c);
+  color: #fff;
+}
+
+.danger-section {
+  border-top: 1px solid rgba(255,75,110,0.2) !important;
+}
+
+.section-header {
+  padding: 14px 24px;
+  background: rgba(0,0,0,0.15);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" href="/dashboard">🛡 TRUTH-X<span>-DETECTOR</span></a>
+  <div class="nav-menu">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/image_detector">Analyze Image</a>
+    <a href="/analyzer">Message Scan</a>
+    <a href="/tools">Tools</a>
+    <a href="/settings" class="active">Settings</a>
+    <a href="/logout" class="logout-btn">Logout</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-size:26px;font-weight:800;color:#fff;">⚙ Settings</h1>
+    <p style="color:var(--muted);font-size:14px;margin-top:4px;">Manage your account preferences and security options</p>
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- LEFT: Profile sidebar -->
+    <div>
+      <div class="profile-card">
+        <div class="avatar-circle">{{ user[0][0] | upper }}</div>
+        <div class="profile-name">{{ user[0] }}</div>
+        <div class="profile-email">{{ user[1] }}</div>
+
+        <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>
+
+        <div class="nav-links">
+          <a class="nav-link" href="/dashboard">📊 Dashboard</a>
+          <a class="nav-link" href="/analyzer">🔎 Message Scan</a>
+          <a class="nav-link" href="/image_detector">🧠 Image Detect</a>
+          <a class="nav-link" href="/tools">🛠 Tools</a>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+        <a href="/logout" style="display:block;padding:10px;border-radius:10px;background:rgba(255,75,110,0.1);border:1px solid rgba(255,75,110,0.25);color:var(--red);font-size:14px;font-weight:600;text-decoration:none;text-align:center;transition:0.2s;" onmouseover="this.style.background='rgba(255,75,110,0.2)'" onmouseout="this.style.background='rgba(255,75,110,0.1)'">🚪 Logout</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: Settings -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- SECURITY SETTINGS -->
+      <div class="setting-block">
+        <div class="section-header">🔒 Security</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Change Password</h3>
+            <p>Update your login password for stronger account security.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/change_password" method="post" style="display:flex;gap:8px;">
+              <input type="password" class="form-input-sm" name="new_password" placeholder="New password" required>
+              <button class="btn-sm" type="submit">Update</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Two-Factor Authentication</h3>
+            <p>Add an extra layer of protection to your account login.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/toggle_2fa" method="post" style="display:flex;gap:8px;">
+              <select class="form-select" name="status">
+                <option value="on" {% if user[2] == 'on' %}selected{% endif %}>Enabled</option>
+                <option value="off" {% if user[2] == 'off' %}selected{% endif %}>Disabled</option>
+              </select>
+              <button class="btn-sm" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- AI SETTINGS -->
+      <div class="setting-block">
+        <div class="section-header">🤖 AI & Scanning</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Scan Sensitivity</h3>
+            <p>Control how aggressively the AI flags potential threats.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/scan_setting" method="post" style="display:flex;gap:8px;">
+              <select class="form-select" name="level">
+                <option {% if user[3] == 'Low' %}selected{% endif %}>Low</option>
+                <option {% if user[3] == 'Medium' %}selected{% endif %}>Medium</option>
+                <option {% if user[3] == 'High' %}selected{% endif %}>High</option>
+              </select>
+              <button class="btn-sm" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Notification Alerts</h3>
+            <p>Get notified when high-risk scams are detected.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/notification_setting" method="post" style="display:flex;gap:8px;">
+              <select class="form-select" name="alerts">
+                <option {% if user[4] == 'On' %}selected{% endif %}>On</option>
+                <option {% if user[4] == 'Off' %}selected{% endif %}>Off</option>
+              </select>
+              <button class="btn-sm" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Data Sharing</h3>
+            <p>Share anonymized scans to help improve AI model accuracy.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/data_sharing_setting" method="post" style="display:flex;gap:8px;">
+              <select class="form-select" name="sharing">
+                <option {% if user[5] == 'On' %}selected{% endif %}>On</option>
+                <option {% if user[5] == 'Off' %}selected{% endif %}>Off</option>
+              </select>
+              <button class="btn-sm" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div class="setting-block">
+        <div class="section-header">⚠ Danger Zone</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Clear Scan History</h3>
+            <p>Permanently remove all your previous scan records from the system.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/clear_history" method="post">
+              <button class="btn-sm btn-sm-danger" type="submit" onclick="return confirm('Are you sure you want to clear all your scan history?')">Clear History</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="setting-row danger-section">
+          <div class="setting-info">
+            <h3 style="color:var(--red);">Delete Account</h3>
+            <p style="color:#fca5a5;">This action is irreversible. All your data will be permanently removed.</p>
+          </div>
+          <div class="setting-control">
+            <form action="/delete_account" method="post" onsubmit="return confirm('WARNING: Are you absolutely sure? This cannot be undone.')">
+              <button class="btn-sm btn-sm-danger" type="submit" style="background:linear-gradient(90deg,#7f1d1d,#991b1b);">Delete Account</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
